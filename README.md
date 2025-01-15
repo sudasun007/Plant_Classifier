@@ -40,8 +40,8 @@ To run this project locally, you need to have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone [https://github.com/sudasun007/PlantClassifierProject.git](https://github.com/sudasun007/Plant_Classifier.git)
-   cd PlantClassifierProject
+   git clone https://github.com/sudasun007/Plant_Classifier.git
+   cd Plant_Classifier
    ```
 
 2. Create a virtual environment:
