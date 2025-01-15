@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Classifier</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #8bc34a, #4caf50);
+            color: #fff;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        button {
+            background-color: #3e8e41;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2e6d31;
+            transform: scale(1.05);
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        /* Loader Styles */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4caf50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Plant Type Classifier</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" id="fileInput" accept="image/*" multiple required>
+        <button type="submit">Upload and Predict</button>
+        <div class="loader" id="loader"></div>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultDiv = document.getElementById('result');
+        const loader = document.getElementById('loader');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const formData = new FormData();
+
+            // Append all selected files to FormData
+            for (let file of fileInput.files) {
+                formData.append('file', file);
+            }
+
+            // Show loader
+            loader.style.display = 'block';
+            resultDiv.innerHTML = '';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                // Hide loader
+                loader.style.display = 'none';
+
+                if (response.ok) {
+                    let resultHtml = "";
+                    result.predictions.forEach(pred => {
+                        resultHtml += `<p>Predicted Class: <strong>${pred.class}</strong>, Confidence: <strong>${pred.confidence}</strong></p>`;
+                    });
+                    resultDiv.innerHTML = resultHtml;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: #ffcccb;">Error: ${result.error}</p>`;
+                }
+            } catch (error) {
+                // Hide loader
+                loader.style.display = 'none';
+                resultDiv.innerHTML = `<p style="color: #ffcccb;">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
